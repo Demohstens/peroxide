@@ -10,7 +10,7 @@ mod tests {
         impl Widget for BaseWidgeet{};
 
         let w = BaseWidgeet{};
-        run_app(w).unwrap();
+        run_app(w);
     }
 
     fn draw_single_color() {

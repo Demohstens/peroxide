@@ -1,5 +1,6 @@
 use std::f32::consts::E;
 use std::fmt::{Debug, Error};
+use wgpu::SurfaceTarget;
 use winit::application::ApplicationHandler;
 use winit::error::EventLoopError;
 use winit::event::WindowEvent;
@@ -35,9 +36,16 @@ impl Window {
     }
 }
 
-#[derive(Default)]
-struct App {
-    window: Option<winitWindow>,
+impl<'a> From<Window> for SurfaceTarget<'a> {
+    fn from(window: Window) -> Self {
+        window.window.unwrap().into()
+    }
+}
+
+impl Window {
+    pub fn inner_size(&self) -> winit::dpi::PhysicalSize<u32> {
+        self.window.as_ref().unwrap().inner_size()
+    }
 }
 
 impl ApplicationHandler for Window {

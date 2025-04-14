@@ -9,6 +9,9 @@ use std::fmt::Error;
 
 pub use window::window::Window;
 pub use widget::widget::*;
+use window::State;
+
+
 
 
 #[macro_export]
@@ -23,7 +26,11 @@ macro_rules! run_app  {
 //     Ok(())
 // }
 
-pub fn run_app<A: Widget>(root_widget: A) -> Result<Window, Error> {
-    run_app!(root_widget)
+pub async fn run_app<A: Widget>(root_widget: A) {
+    // let win = run_app!(root_widget).unwrap();
+    let win = Window::run().unwrap();
+    let winitWindow = win.window.as_ref().unwrap();
+    let state = State::new(winitWindow);
+
 }
 
