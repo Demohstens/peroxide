@@ -5,7 +5,8 @@ use crate::{window::State, Widget};
 impl Widget for &str {
     fn draw(&self, hwnd_parent: HWND) -> HWND {
         unsafe {
-        let text = self.encode_utf16().collect::<Vec<u16>>();
+        let mut text = self.encode_utf16().collect::<Vec<u16>>();
+        text.push(0); // Null-terminate the string
         let lpclassname = "STATIC\0".encode_utf16().collect::<Vec<u16>>();
         let _str_hwnd = CreateWindowExW(
             WINDOW_EX_STYLE(0),

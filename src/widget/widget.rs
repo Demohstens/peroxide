@@ -1,11 +1,11 @@
+use std::fmt::Error;
+
 use windows::Win32::Foundation::HWND;
 
 
 
 pub trait Widget  {
-    fn draw(&self, hwnd_parent: HWND)-> HWND {
-        todo!()
-    }
+    fn draw(&self, hwnd_parent: HWND)-> HWND;
 }
 
 

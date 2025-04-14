@@ -16,7 +16,8 @@ pub struct Button {
 impl Widget for Button {
     fn draw(&self, hwnd_parent: HWND)-> HWND {
         unsafe {
-            let text = self.text.encode_utf16().collect::<Vec<u16>>();
+            let mut text = self.text.encode_utf16().collect::<Vec<u16>>();
+            text.push(0); // Null-terminate the string
             let lpclassname = "BUTTON\0".encode_utf16().collect::<Vec<u16>>();
             let _button_hwnd = CreateWindowExW(
                 WINDOW_EX_STYLE(0),

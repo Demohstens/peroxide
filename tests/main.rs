@@ -6,11 +6,7 @@ mod tests {
 
     #[test]
     fn run_basic_window() {
-        struct BaseWidgeet {}
-        impl Widget for BaseWidgeet{};
-
-        let w = BaseWidgeet{};
-        run_app(w);
+        run_app("hiawdufh");
     }
 
     fn draw_single_color() {
