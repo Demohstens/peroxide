@@ -3,29 +3,24 @@ use std::fmt::Error;
 use windows::Win32::Foundation::HWND;
 
 
-
+/// A Widget defines a UI element and can be implemented on basically any struct. 
+/// It requires the `draw` method to be implemented, which takes a parent window handle and returns a handle to the created widget. It should itself draw it's children, if any.
+/// Be aware that a proper Widget struct SHOULD but does not NEED to have a parent and children as well as other paramenters requires by native components.
+/// Example Widget struct:
+/// ```rust
+/// struct MyWidget {
+///    parent: Option<Box<dyn Widget>>, // use Option<Box<dyn Widget>> to allow for dynamic dispatch
+///    child: Option<Box<dyn Widget>>, 
+///    text: String, // Text to be rendered onto the widget
+///    x: i32, // X position of the widget relative to the parent widget
+///    y: i32, 
+///    width: i32, // Width of the widget
+///    height: i32, // Height of the widget
+///    id: i32, // ID of the widget. Not used yet.
+/// }
 pub trait Widget  {
-    fn draw(&self, hwnd_parent: HWND)-> HWND;
+    /// Draws the widget and returns a handle to the created widget.
+    /// The parent window handle is passed as an argument.
+    /// The widget should draw its children, if it has any.
+    fn draw(&self, hwnd_parent: HWND)-> HWND; 
 }
-
-
-
-// unsafe {
-//     let button_text: Vec<u16> = "Hello\0".encode_utf16().collect();
-//     let class_name: Vec<u16> = "BUTTON\0".encode_utf16().collect();
-
-//     let _button_hwnd = CreateWindowExW(
-//         WINDOW_EX_STYLE(0),
-//         PCWSTR(class_name.as_ptr()),
-//         PCWSTR(button_text.as_ptr()),
-//         WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-//         50,
-//         50,
-//         100,
-//         30,
-//         Some(hwnd),
-//         Some(HMENU::default()),
-//         None,
-//         None,
-//     );
-// }
