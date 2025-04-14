@@ -3,8 +3,8 @@ use windows::Win32::Foundation::HWND;
 
 
 pub trait Widget  {
-    fn draw(&self, hwnd_parent: HWND) {
-        println!("Drawing widget");
+    fn draw(&self, hwnd_parent: HWND)-> HWND {
+        todo!()
     }
 }
 

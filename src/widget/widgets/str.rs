@@ -3,7 +3,7 @@ use windows::{core::PCWSTR, Win32::{Foundation::HWND, UI::WindowsAndMessaging::{
 use crate::{window::State, Widget};
 
 impl Widget for &str {
-    fn draw(&self, hwnd_parent: HWND) {
+    fn draw(&self, hwnd_parent: HWND) -> HWND {
         unsafe {
         let text = self.encode_utf16().collect::<Vec<u16>>();
         let lpclassname = "STATIC\0".encode_utf16().collect::<Vec<u16>>();
@@ -21,6 +21,7 @@ impl Widget for &str {
             None, 
             None);
         println!("Created static Text with hwnd: {:?}", _str_hwnd);
+        _str_hwnd.unwrap()
         }
     }
 }

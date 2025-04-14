@@ -1,0 +1,60 @@
+use windows::{core::PCWSTR, Win32::{Foundation::HWND, UI::WindowsAndMessaging::{CreateWindowExW, HMENU, WINDOW_EX_STYLE, WS_CHILD, WS_TABSTOP, WS_VISIBLE}}};
+use crate::{window::State, Widget};
+
+
+pub struct Button {
+    pub parent: Option<Box<dyn Widget>>,
+    pub text: String,
+    pub x: i32,
+    pub y: i32,
+    pub width: i32,
+    pub height: i32,
+    pub id: i32,
+}
+
+impl Widget for Button {
+    fn draw(&self, hwnd_parent: HWND)-> HWND {
+        unsafe {
+            let text = self.text.encode_utf16().collect::<Vec<u16>>();
+            let lpclassname = "BUTTON\0".encode_utf16().collect::<Vec<u16>>();
+            let _button_hwnd = CreateWindowExW(
+                WINDOW_EX_STYLE(0),
+                PCWSTR(lpclassname.as_ptr()),
+                PCWSTR(text.as_ptr()),
+                WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+                self.x,
+                self.y,
+                self.width,
+                self.height,
+                Some(hwnd_parent),
+                Some(HMENU::default()),
+                None,
+                None);
+            println!("Created button with hwnd: {:?}", _button_hwnd);
+            _button_hwnd.unwrap()
+        }
+    }
+}
+#[macro_export]
+macro_rules! button {
+    {
+        parent: $parent:expr,
+        text: $text:expr,
+        x: $x:expr,
+        y: $y:expr,
+        width: $width:expr,
+        height: $height:expr,
+        id: $id:expr $(,)?
+    } => {
+        Button {
+            parent: $parent,
+            text: $text.to_string(),
+            x: $x,
+            y: $y,
+            width: $width,
+            height: $height,
+            id: $id,
+        }
+    }
+}
+
