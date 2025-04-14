@@ -7,7 +7,7 @@ use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopBuilde
 use winit::platform::windows::EventLoopBuilderExtWindows;
 use winit::window::{Window as winitWindow, WindowId};
 pub struct Window {
-    window: Option<winitWindow>,
+    pub window: Option<winitWindow>,
 }
 
 

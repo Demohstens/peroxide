@@ -10,17 +10,20 @@ use std::fmt::Error;
 pub use window::window::Window;
 pub use widget::widget::*;
 
-macro_rules! runApp  {
-    ($widget:ty) => {
-        $window:expr = Window::run().unwrap();
-        return Ok(())
-    };
+
+#[macro_export]
+macro_rules! run_app  {
+    ($widget:ty) => {{
+        let window = Window::run().unwrap();
+        Ok(window)
+    }};
 }
 // pub fn runApp(w: dyn Widget) -> Result<(), Error> {
 //     let window = Window::run().unwrap();
 //     Ok(())
 // }
 
-pub fn runApp() -> Result<(), Error> {
-    runApp!(Window)
+pub fn run_app<A: Widget>(root_widget: A) -> Result<Window, Error> {
+    run_app!(root_widget)
 }
+
