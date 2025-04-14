@@ -12,7 +12,7 @@ impl Widget for &str {
             PCWSTR(lpclassname.as_ptr()),
             PCWSTR(text.as_ptr()),
             WS_CHILD | WS_VISIBLE | WS_TABSTOP, 
-            0, 
+            100, 
             0, 
             200, 
             100, 

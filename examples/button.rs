@@ -3,6 +3,7 @@ use peroxide::{button, widget::widgets::button::Button, Widget};
 fn main() {
     let btn: Button = button!(
         parent: None,
+        child: "Hello World!",
         text: "Hello",
         x: 500,
         y: 50,

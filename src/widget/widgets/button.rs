@@ -4,6 +4,7 @@ use crate::{window::State, Widget};
 
 pub struct Button {
     pub parent: Option<Box<dyn Widget>>,
+    pub child: Option<Box<dyn Widget>>,
     pub text: String,
     pub x: i32,
     pub y: i32,
@@ -31,7 +32,14 @@ impl Widget for Button {
                 None,
                 None);
             println!("Created button with hwnd: {:?}", _button_hwnd);
-            _button_hwnd.unwrap()
+            match &self.child {
+                Some(child) => {
+                    child.draw(_button_hwnd.unwrap())
+                },
+                None => {
+                    _button_hwnd.unwrap()
+                }
+            }
         }
     }
 }
@@ -39,6 +47,7 @@ impl Widget for Button {
 macro_rules! button {
     {
         parent: $parent:expr,
+        child: $child:expr,
         text: $text:expr,
         x: $x:expr,
         y: $y:expr,
@@ -48,6 +57,7 @@ macro_rules! button {
     } => {
         Button {
             parent: $parent,
+            child: Some(Box::new($child)),
             text: $text.to_string(),
             x: $x,
             y: $y,
