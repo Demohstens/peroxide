@@ -1,3 +1,2 @@
 pub mod widget;
-
-use widget::Widget;
+pub mod widgets;

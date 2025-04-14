@@ -1,5 +1,4 @@
-pub mod window;
+pub mod app;
 pub mod state;
 
-pub use window::Window;
 pub use state::State;
