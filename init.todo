@@ -4,7 +4,10 @@
 
 
 ### Window-mangement
-
-### Widgets
+✔ Spawn window and event handler @done(25-04-14 19:08)
+☐ Drawing to window
+☐ handle events
+### Widgets 
 
 ### Rendering pipelines
+☐ helper functions to render to the screen.
