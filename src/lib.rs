@@ -14,13 +14,6 @@ pub use widget::widget::*;
 
 
 
-#[macro_export]
-macro_rules! run_app  {
-    ($widget:ty) => {{
-        let window = Window::run().unwrap();
-        Ok(window)
-    }};
-}
 
 
 pub fn run_app<A: Widget + 'static >(root_widget: A) {

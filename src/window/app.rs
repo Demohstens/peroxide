@@ -1,6 +1,7 @@
 use std::f32::consts::E;
 use std::fmt::{Debug, Error};
 use std::rc::Rc;
+use std::sync::Arc;
 use wgpu::SurfaceTarget;
 use winit::application::ApplicationHandler;
 use winit::error::EventLoopError;
@@ -9,6 +10,7 @@ use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopBuilde
 use winit::platform::windows::EventLoopBuilderExtWindows;
 use winit::window::{Window, WindowId};
 
+use crate::widget::WidgetTree;
 use crate::{Platform, Widget};
 
 use super::State;
@@ -18,7 +20,8 @@ use super::State;
 
 impl App {
     pub fn new<A: Widget + 'static>(root: A, platform: Platform) -> Self {
-        App { state: None, root_widget: Box::new(root), platform }
+        let widgets = WidgetTree::new(Box::new(root));
+        App { state: None, platform, widgets }
     }
 
     pub fn run(&mut self) -> Result<(), EventLoopError> {
@@ -46,7 +49,7 @@ impl App {
 pub struct App {
     pub platform: Platform,
     pub state: Option<State>,
-    pub root_widget: Box<dyn Widget>,
+    pub widgets: WidgetTree,
 
 }
 
@@ -56,7 +59,7 @@ impl<'a> ApplicationHandler for App {
             .create_window(Window::default_attributes())
             .unwrap();
 
-        self.state = Some(pollster::block_on(State::new(window, self.root_widget.as_ref(), &self.platform)));
+        self.state = Some(pollster::block_on(State::new(window, &self.widgets, &self.platform)));
         match &self.state {
             Some(state) => {
                 state.window().set_visible(true);
