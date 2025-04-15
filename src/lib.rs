@@ -6,15 +6,12 @@
 pub mod window;
 pub mod widget;
 pub mod platform;
+pub mod rendering;
 
 pub use window::app::App;
 pub use platform::Platform;
 pub use widget::widget::*;
-
-
-
-
-
+pub use rendering::render_object::RenderObject;
 
 pub fn run_app<A: Widget + 'static >(root_widget: A) {
     let platform = if cfg!(target_os = "windows") {

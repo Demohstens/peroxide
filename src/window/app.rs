@@ -21,7 +21,11 @@ use super::State;
 impl App {
     pub fn new<A: Widget + 'static>(root: A, platform: Platform) -> Self {
         let widgets = WidgetTree::new(Box::new(root));
-        App { state: None, platform, widgets }
+        App {
+            state: None,
+            platform,
+            widgets,
+        }
     }
 
     pub fn run(&mut self) -> Result<(), EventLoopError> {
@@ -38,9 +42,6 @@ impl App {
             WindowEvent::CursorEntered { device_id, .. } => {
                 println!("Cursor entered the window; device ID: {:?}", device_id);
             }
-            WindowEvent::Resized(size) => {
-                println!("Window resized to: {:?}", size);
-            }
             _ => (),
         }
     }
@@ -50,7 +51,6 @@ pub struct App {
     pub platform: Platform,
     pub state: Option<State>,
     pub widgets: WidgetTree,
-
 }
 
 impl<'a> ApplicationHandler for App {
@@ -59,7 +59,11 @@ impl<'a> ApplicationHandler for App {
             .create_window(Window::default_attributes())
             .unwrap();
 
-        self.state = Some(pollster::block_on(State::new(window, &self.widgets, &self.platform)));
+        self.state = Some(pollster::block_on(State::new(
+            window,
+            &self.widgets,
+            &self.platform,
+        )));
         match &self.state {
             Some(state) => {
                 state.window().set_visible(true);
@@ -78,14 +82,40 @@ impl<'a> ApplicationHandler for App {
                 println!("The close button was pressed; stopping");
                 event_loop.exit();
             }
-            WindowEvent::RedrawRequested => match &self.state {
-                Some(state) => state.window().request_redraw(),
+            WindowEvent::Resized(new_size) => {
+                self.state.as_mut().unwrap().resize(new_size);
+            }
+            WindowEvent::RedrawRequested => match &mut self.state {
+                Some(state) =>  {
+
+                    state.window().request_redraw();
+                    state.update();
+
+                    match state.render() {
+                        Ok(_) => {}
+                        // Reconfigure the surface if it's lost or outdated
+                        Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                            state.resize(state.size)
+                        }
+                        // The system is out of memory, we should probably quit
+                        Err(wgpu::SurfaceError::OutOfMemory | wgpu::SurfaceError::Other) => {
+                            log::error!("OutOfMemory");
+                            event_loop.exit();
+                        }
+
+                        // This happens when the a frame takes too long to present
+                        Err(wgpu::SurfaceError::Timeout) => {
+                            log::warn!("Surface timeout")
+                        }
+                    }
+                }
+
                 None => {
                     println!("No state found; cannot redraw");
                     event_loop.exit();
                 }
             },
-            event=> self.handle_event(event),
+            event => self.handle_event(event),
         }
     }
 }
