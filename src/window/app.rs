@@ -61,7 +61,7 @@ impl<'a> ApplicationHandler for App {
 
         self.state = Some(pollster::block_on(State::new(
             window,
-            &self.widgets,
+            &mut self.widgets,
             &self.platform,
         )));
         match &self.state {

@@ -23,6 +23,22 @@ pub trait Widget {
     fn children(&self) -> Vec<*mut dyn Widget> {
         vec![] // Default implementation returns an empty vector
     }
+
+    fn width(&self) -> i32 {
+        0 // Default implementation returns 0
+    }
+    fn height(&self) -> i32 {
+        0 // Default implementation returns 0
+    }
+    fn color(&self) -> String {
+        "0x000000".to_string() // Default implementation returns black color
+    }
+    fn id(&self) -> i32 {
+        0 // Default implementation returns 0
+    }
+    fn parent(&self) -> Option<Box<dyn Widget>> {
+        None // Default implementation returns None
+    }
 }
 
 /// Generates a widget struct with the given name and fields.

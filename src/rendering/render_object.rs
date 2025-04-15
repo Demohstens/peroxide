@@ -62,10 +62,10 @@ impl RenderObject {
 }
 
 pub struct Constraints {
-    pub min_width: u32,
-    pub min_height: u32,
-    pub max_width: Option<u32>,
-    pub max_height: Option<u32>,
-    pub width: Option<u32>,
-    pub height: Option<u32>,
+    pub min_width: i32,
+    pub min_height: i32,
+    pub max_width: Option<i32>,
+    pub max_height: Option<i32>,
+    pub width: Option<i32>,
+    pub height: Option<i32>,
 }

@@ -28,7 +28,7 @@ pub struct State {
 
 impl State {
     // Creating some of the wgpu types requires async code
-    pub async fn new(window: Window, widget_tree: &WidgetTree, platform: &Platform) -> State {
+    pub async fn new(window: Window, widget_tree: &mut WidgetTree, platform: &Platform) -> State {
         let size = window.inner_size();
 
         // The instance is a handle to our GPU
@@ -47,7 +47,9 @@ impl State {
             _ => panic!("Unsupported window handle type"),
         };
 
-        widget_tree.draw(hwnd);
+        unsafe {
+            widget_tree.draw(hwnd); 
+    }
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
