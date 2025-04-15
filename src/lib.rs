@@ -5,8 +5,10 @@
 
 pub mod window;
 pub mod widget;
+pub mod platform;
 
 pub use window::app::App;
+pub use platform::Platform;
 pub use widget::widget::*;
 
 
@@ -22,8 +24,15 @@ macro_rules! run_app  {
 
 
 pub fn run_app<A: Widget + 'static >(root_widget: A) {
+    let platform = if cfg!(target_os = "windows") {
+        Platform::Windows
+    } else if cfg!(target_os = "linux") {
+        Platform::Linux
+    } else {
+        todo!("Platform not supported")
+    };
     // let win = run_app!(root_widget).unwrap();
-    let mut app = App::new(root_widget);
+    let mut app = App::new(root_widget, platform);
     // root_widget.draw();
     app.run().unwrap();
 

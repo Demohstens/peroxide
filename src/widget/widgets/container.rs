@@ -1,5 +1,5 @@
 use windows::{core::PCWSTR, Win32::{Foundation::{COLORREF, HWND, RECTL}, Graphics::Gdi::{CreateSolidBrush, FillRect, GetDC, ReleaseDC}, UI::WindowsAndMessaging::{CreateWindowExW, HMENU, WINDOW_EX_STYLE, WINDOW_STYLE, WS_BORDER, WS_CHILD, WS_TABSTOP, WS_VISIBLE}}};
-use crate::{window::State, Widget};
+use crate::{widget::style::decoration::BoxDecoration, window::State, Widget};
 
 
 pub struct Container {
@@ -12,6 +12,23 @@ pub struct Container {
     pub height: i32,
     pub color: COLORREF, // Color of the container in RGB format
     pub id: i32,
+    pub decoration: Option<BoxDecoration>,
+}
+impl Container {
+    pub fn new() -> Self {
+        Self {
+            parent: None,
+            child: None,
+            border: false,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            color: COLORREF(0xFFFFFF), // Default to white
+            id: 0,
+            decoration: None,
+        }
+    }
 }
 
 impl Widget for Container {

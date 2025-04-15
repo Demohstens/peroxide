@@ -15,7 +15,7 @@ use windows::{
 };
 use winit::{dpi::PhysicalSize, event::WindowEvent, window::Window};
 
-use crate::Widget;
+use crate::{Platform, Widget};
 
 pub struct State {
     surface: wgpu::Surface<'static>,
@@ -28,7 +28,7 @@ pub struct State {
 
 impl State {
     // Creating some of the wgpu types requires async code
-    pub async fn new(window: Window, root: &dyn Widget) -> State {
+    pub async fn new(window: Window, root: &dyn Widget, platform: &Platform) -> State {
         let size = window.inner_size();
 
         // The instance is a handle to our GPU

@@ -24,3 +24,41 @@ pub trait Widget  {
     /// The widget should draw its children, if it has any.
     fn draw(&self, hwnd_parent: HWND)-> HWND; 
 }
+
+/// Generates a widget struct with the given name and fields. 
+/// Requires the `from` keyword to specify the parent type. This has to be a built-in Widget type. 
+/// example:
+/// ```rust
+/// widget! {
+///     MyWidget from Button {
+///         text: String,  
+///         x: i32,
+///         y: i32,
+///     }
+#[macro_export]
+macro_rules! widget {
+    (
+        $name:ident from $super: ty {
+            $($field:ident : $type:ty),* $(,)?
+        }
+    ) => {  
+        /// A widget struct with the given name and fields.
+        /// The widget struct is a child of the given parent type.
+        ;
+        struct $name {
+            $($field: $type),*
+        }
+        impl $name {
+            fn new() -> Self {
+                Self {
+                    $($field: Default::default()),*
+                }
+            }
+        }
+    };
+    {
+        $name: ident $($rest:tt)*
+    } => {
+        compile_error!(concat!("Invalid widget definition: ", stringify!($name), " you're likely missing the 'from' keyword"));
+    }; 
+}

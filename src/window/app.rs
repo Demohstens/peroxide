@@ -9,7 +9,7 @@ use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopBuilde
 use winit::platform::windows::EventLoopBuilderExtWindows;
 use winit::window::{Window, WindowId};
 
-use crate::Widget;
+use crate::{Platform, Widget};
 
 use super::State;
 // pub struct Window {
@@ -17,8 +17,8 @@ use super::State;
 // }
 
 impl App {
-    pub fn new<A: Widget + 'static>(root: A) -> Self {
-        App { state: None, root_widget: Box::new(root) }
+    pub fn new<A: Widget + 'static>(root: A, platform: Platform) -> Self {
+        App { state: None, root_widget: Box::new(root), platform }
     }
 
     pub fn run(&mut self) -> Result<(), EventLoopError> {
@@ -29,11 +29,25 @@ impl App {
 
         event_loop.run_app(self)
     }
+
+    pub fn handle_event(&self, event: WindowEvent) {
+        match event {
+            WindowEvent::CursorEntered { device_id, .. } => {
+                println!("Cursor entered the window; device ID: {:?}", device_id);
+            }
+            WindowEvent::Resized(size) => {
+                println!("Window resized to: {:?}", size);
+            }
+            _ => (),
+        }
+    }
 }
 
 pub struct App {
+    pub platform: Platform,
     pub state: Option<State>,
     pub root_widget: Box<dyn Widget>,
+
 }
 
 impl<'a> ApplicationHandler for App {
@@ -42,7 +56,17 @@ impl<'a> ApplicationHandler for App {
             .create_window(Window::default_attributes())
             .unwrap();
 
-        self.state = Some(pollster::block_on(State::new(window, self.root_widget.as_ref())));
+        self.state = Some(pollster::block_on(State::new(window, self.root_widget.as_ref(), &self.platform)));
+        match &self.state {
+            Some(state) => {
+                state.window().set_visible(true);
+                state.window().request_redraw();
+            }
+            None => {
+                println!("No state found; cannot resume");
+                event_loop.exit();
+            }
+        }
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
@@ -58,7 +82,7 @@ impl<'a> ApplicationHandler for App {
                     event_loop.exit();
                 }
             },
-            _ => (),
+            event=> self.handle_event(event),
         }
     }
 }

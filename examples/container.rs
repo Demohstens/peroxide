@@ -1,4 +1,4 @@
-use peroxide::{run_app, widget::widgets::{button::Button, container::Container}};
+use peroxide::{run_app, widget::{style::decoration::BoxDecoration, widgets::{button::Button, container::Container}}};
 
 fn main() {
     run_app(Container{
@@ -20,5 +20,34 @@ fn main() {
         id: 1,
         border: true,
         color: windows::Win32::Foundation::COLORREF(0x0000FFF), // Blue color
+        decoration: Some(BoxDecoration::new(None, Some("0x0000FFF".to_owned()), None)),
     });
+}
+
+macro_rules! container {
+    {
+        parent: $parent:expr,
+        child: $child:expr,
+        x: $x:expr,
+        y: $y:expr,
+        width: $width:expr,
+        height: $height:expr,
+        id: $id:expr,
+        border: $border:expr,
+        color: $color:expr,
+        decoration: $decoration:expr
+    } => {
+        Container {
+            parent: $parent,
+            child: $child,
+            x: $x,
+            y: $y,
+            width: $width,
+            height: $height,
+            id: $id,
+            border: $border,
+            color: $color,
+            decoration: $decoration.unwrap_or(None),
+        }        
+    };
 }
