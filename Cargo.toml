@@ -11,5 +11,5 @@ env_logger = "0.11.8"
 log = "0.4.27"
 pollster = "0.4.0"
 wgpu = "25.0.0"
-windows = {version = "0.61.1", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"]}
+windows = {version = "0.61.1", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging"]}
 winit = "0.30.9"

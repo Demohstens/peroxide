@@ -1,4 +1,4 @@
-use windows::{core::PCWSTR, Win32::{Foundation::HWND, UI::WindowsAndMessaging::{CreateWindowExW, HMENU, WINDOW_EX_STYLE, WS_CHILD, WS_TABSTOP, WS_VISIBLE}}};
+use windows::{core::PCWSTR, Win32::{Foundation::HWND, UI::WindowsAndMessaging::{CreateWindowExW, HMENU, WINDOW_EX_STYLE, WS_BORDER, WS_CHILD, WS_TABSTOP, WS_THICKFRAME, WS_TILED, WS_VISIBLE}}};
 
 use crate::{window::State, Widget};
 
@@ -12,7 +12,7 @@ impl Widget for &str {
             WINDOW_EX_STYLE(0),
             PCWSTR(lpclassname.as_ptr()),
             PCWSTR(text.as_ptr()),
-            WS_CHILD | WS_VISIBLE | WS_TABSTOP, 
+            WS_CHILD | WS_VISIBLE  | WS_THICKFRAME | WS_TILED, 
             100, 
             0, 
             200, 
