@@ -4,6 +4,8 @@ use wgpu::{
     Device, Queue, Surface, SurfaceConfiguration,
     rwh::{HasWindowHandle, RawWindowHandle},
 };
+
+#[cfg(target_os = "windows")]
 use windows::{
     Win32::{
         Foundation::HWND,
@@ -42,12 +44,15 @@ impl State {
         let surface = instance.create_surface(window_ref).unwrap();
         // The adapter is a handle to a specific GPU on the system
 
-        let hwnd = match window_ref.window_handle().unwrap().as_raw() {
-            RawWindowHandle::Win32(handle) => HWND(handle.hwnd.get() as *mut _),
-            _ => panic!("Unsupported window handle type"),
-        };
+        #[cfg(target_os = "windows")]
+        {
+            let hwnd = match window_ref.window_handle().unwrap().as_raw() {
+                RawWindowHandle::Win32(handle) => HWND(handle.hwnd.get() as *mut _),
+                _ => panic!("Unsupported window handle type"),
+            };
 
-        widget_tree.draw(hwnd.0);
+            widget_tree.draw(hwnd.0);
+        }
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
