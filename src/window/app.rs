@@ -66,7 +66,6 @@ impl<'a> ApplicationHandler for App {
         )));
         match &self.state {
             Some(state) => {
-                state.window().set_visible(true);
                 state.window().request_redraw();
             }
             None => {

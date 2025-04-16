@@ -14,6 +14,19 @@ pub struct Button {
 }
 
 impl Widget for Button {
+    fn width(&self) -> i32 {
+        self.width
+    }
+    fn x(&self) -> i32 {
+        self.x
+    }
+    fn y(&self) -> i32 {
+        self.y 
+    }
+
+    fn height(&self) -> i32 {
+        self.height
+    }
     fn draw(&self, hwnd_parent: HWND)-> HWND {
         unsafe {
             let mut text = self.text.encode_utf16().collect::<Vec<u16>>();

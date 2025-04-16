@@ -1,3 +1,6 @@
+use std::rc::Rc;
+
+use wgpu::Color;
 use windows::Win32::Foundation::HWND;
 
 /// A Widget defines a UI element and can be implemented on basically any struct.
@@ -20,18 +23,16 @@ pub trait Widget {
     /// The parent window handle is passed as an argument.
     /// The widget should draw its children, if it has any.
     fn draw(&self, hwnd_parent: HWND) -> HWND;
-    fn children(&self) -> Vec<*mut dyn Widget> {
+    fn children(&self) -> Vec<Rc<dyn Widget>> {
         vec![] // Default implementation returns an empty vector
     }
+    fn x(&self) -> i32;
+    fn y(&self) -> i32;
 
-    fn width(&self) -> i32 {
-        0 // Default implementation returns 0
-    }
-    fn height(&self) -> i32 {
-        0 // Default implementation returns 0
-    }
-    fn color(&self) -> String {
-        "0x000000".to_string() // Default implementation returns black color
+    fn width(&self) -> i32;
+    fn height(&self) -> i32;
+    fn color(&self) -> Color {
+        Color::RED
     }
     fn id(&self) -> i32 {
         0 // Default implementation returns 0

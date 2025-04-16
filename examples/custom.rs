@@ -1,6 +1,9 @@
-use peroxide::widget::widgets::container::Container;
+use std::rc::Rc;
 
-fn main () {
+use peroxide::widget::widgets::container::Container;
+use wgpu::Color;
+
+fn main() {
     // Replace with the correct way to create a Button widget
     let btn = peroxide::widget::Button {
         parent: None,
@@ -14,17 +17,27 @@ fn main () {
     };
     let container = Container {
         parent: None,
-        child: Some(Box::new(btn)),
-        x: 200,
+        child: Some(Rc::new(Container {
+            parent: None,
+            child: Some(Rc::new(btn)),
+            x: 0,
+            y: 0,
+            width: 400,
+            height: 100,
+            id: 3,
+            decoration: None,
+            color: Color::RED, // Blue color
+            border: true,
+        })),
+        x: 50,
         y: 50,
-        width: 1000,
+        width: 500,
         height: 500,
         id: 1,
         border: true,
-        color: windows::Win32::Foundation::COLORREF(0x0000FFF), // Blue color
+        color: Color::BLUE, // Blue color
         decoration: None,
     };
-    
-    peroxide::run_app(container);
 
+    peroxide::run_app(container);
 }

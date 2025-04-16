@@ -1,25 +1,41 @@
-use crate::{rendering::render_object::Constraints, RenderObject, Widget};
+use std::rc::Rc;
 
+use crate::{rendering::render_object::{self, Constraints}, RenderObject, Widget};
+
+
+/// The Widget tree is the main structure that holds the widgets and their relationships.
+/// Widgets merely control how it is created. The tree stores state, layout, and rendering information.
+/// Therefor it owns the widgets and their Render Objects and manages them independently of oneanother.
 pub struct WidgetTree {
     root: WidgetRootNode,
 }
 
 impl WidgetTree {
     pub fn new(root: Box<dyn Widget>) -> Self {
-        let children = unsafe {
-            root
-                .as_ref()
-                .children()
-                .iter()
-                .map(|&child| WidgetNode::new(unsafe { Box::from_raw(child) }))
-                .collect()
+        
+        let widget = Rc::new(root);
+        let render_object = RenderObject {
+            id: 0,
+            constraints: Constraints{
+                min_width: widget.width(),
+                min_height: widget.height(),
+                max_width: Some(1000),
+                max_height: Some(1000),
+                width: Some(widget.width()),
+                height: Some(widget.height()),
+            }, 
+            x: 0,
+            y: 0,
+            color: widget.color(),
+            handle: None,
+            parent: None,
+            // children: vec![],
+            is_visible: true,
+            is_enabled: true,
+            input_handler: None,
         };
         let tree = WidgetTree {
-            root: WidgetRootNode {
-                widget: root,
-                children,
-                render_object: None, // TODO initialize render object
-            },
+            root: WidgetRootNode::new(widget)
         };
 
         return tree;
@@ -30,6 +46,18 @@ impl WidgetTree {
             Some(render_object) => {
                 render_object.parent = Some(hwnd_parent);
                 render_object.draw();
+                for child in self.root.children.iter_mut() {
+                    match child.render_object() {
+                        Some(ro) => {
+                            ro.parent = Some(render_object.handle.unwrap());
+                            ro.draw();
+                        },
+                        None => (
+                           unreachable!()
+                        )
+                    }
+                    
+                }
             }
             None => {
                 panic!("Render object is None");
@@ -39,88 +67,112 @@ impl WidgetTree {
 }
 
 struct WidgetRootNode {
-    widget: Box<dyn Widget>,
+    widget: Rc<Box<dyn Widget>>,
     children: Vec<WidgetNode>,
     render_object: Option<RenderObject>,
 }
 impl WidgetRootNode {
-    pub fn new(widget: Box<dyn Widget>) -> Self {
+    
+
+    pub fn new(widget: Rc<Box<dyn Widget>>) -> Self {
         let width = widget.width();
         let height = widget.height();
         let color = widget.color();
-        let children =  {
+        let x = widget.x();
+        let y = widget.y();
+        let id = widget.id();
+        let children: Vec<WidgetNode> =  {
             widget
                 .as_ref()
                 .children()
                 .iter()
-                .map(|&child| WidgetNode::new(unsafe { Box::from_raw(child) }))
+                .map(|child| WidgetNode::new( Rc::clone(child)))
                 .collect()
+        };
+        println!("Root node has {:?} children", widget.children().len());
+        let render_object  = RenderObject {
+            id: id as u32,
+            constraints: Constraints{
+                min_width: width,
+                min_height: height,
+                max_width: Some(1000),
+                max_height: Some(1000),
+                width: Some(width),
+                height: Some(height),
+            }, 
+            x: x,
+            y: y,
+            color: color,
+            handle: None,
+            parent: None,
+            // children: vec![],
+            is_visible: true,
+            is_enabled: true,
+            input_handler: None,
         };
         WidgetRootNode {
             widget,
             children,
-            render_object: Some(RenderObject {
-                id: 0,
-                constraints: Constraints{ 
-                    min_width: 0,
-                    min_height: 0,
-                    max_width: Some(1000),
-                    max_height: Some(1000),
-                    width: Some(width),
-                    height: Some(height),
-                },
-                x: 0,
-                y: 0,
-                color,
-                handle: None,
-                parent: None,
-                children: vec![],
-                is_visible: true,
-                is_enabled: true,
-                input_handler: None,
-            }),
+            render_object: Some(render_object),
         }
     }
 }
 
 struct WidgetNode {
-    widget: Box<dyn Widget>,
+    widget: Rc<dyn Widget>,
     children: Vec<WidgetNode>,
     render_object: Option<RenderObject>,
 }
 
 impl WidgetNode {
-    pub fn new(widget: Box<dyn Widget>) -> Self {
+
+    pub fn render_object(&mut self) -> Option<&mut RenderObject> {
+        match self.render_object {
+            Some(ref mut render_object) => {
+                Some(render_object)
+            }
+            None => {
+                if (self.children.len() == 0) {
+                    None 
+                } else {
+                    todo!("Construct render child");
+                }
+            }
+        }
+    }
+    pub fn new(widget: Rc<dyn Widget>) -> Self {
         let width = widget.width();
         let height = widget.height();
         let color = widget.color();
+        let x = widget.x();
+        let y = widget.y();
+        let id = widget.id();
         let children =  {
             widget
                 .as_ref()
                 .children()
                 .iter()
-                .map(|&child| WidgetNode::new(unsafe { Box::from_raw(child) }))
+                .map(|child| WidgetNode::new(Rc::clone(child)))
                 .collect()
         };
         WidgetNode {
             widget,
             children,
             render_object: Some(RenderObject {
-                id: 0,
+                id: id as u32,
                 constraints: Constraints{ 
-                    min_width: 0,
-                    min_height: 0,
+                    min_width: width,
+                    min_height: height,
                     max_width: Some(1000),
                     max_height: Some(1000),
                     width: Some(width),
                     height: Some(height),
                 },
-                x: 0,
-                y: 0,
+                x: x,
+                y: y,
                 color,
                 handle: None,
                 parent: None,
-                children: vec![],
                 is_visible: true,
                 is_enabled: true,
                 input_handler: None,

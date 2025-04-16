@@ -1,17 +1,22 @@
+use std::{f32::consts::E, fmt::Debug, rc::Rc};
+
+use env_logger::{Env, Logger};
+use log::{info, warn};
 use peroxide::{run_app, widget::{style::decoration::BoxDecoration, widgets::{button::Button, container::Container}}};
+use wgpu::Color;
 
 fn main() {
     run_app(Container{
         parent: None,
-        child: Some(Box::new(Button {
+        child: Some(Rc::new(Button {
             parent: None,
             child: Some(Box::new("Hello World!")),
             text: "Hello".to_string(),
             x: 200,
             y: 50,
-            width: 100,
-            height: 30,
-            id: 1,
+            width: 500,
+            height: 2000,
+            id: 4,
         })),
         x: 200,
         y: 50,
@@ -19,7 +24,7 @@ fn main() {
         height: 500,
         id: 1,
         border: true,
-        color: windows::Win32::Foundation::COLORREF(0x0000FFF), // Blue color
+        color: Color::GREEN, // Blue color
         decoration: Some(BoxDecoration::new(None, Some("0x0000FFF".to_owned()), None)),
     });
 }
