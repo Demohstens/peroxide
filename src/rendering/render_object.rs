@@ -32,6 +32,8 @@ pub struct RenderObject {
 
 impl RenderObject {
     pub fn layout(&mut self) {}
+
+    #[cfg(target_os = "windows")]
     fn draw_windows(&mut self) {
         let class_name = class_name::ClassName::RENDEROBJECT.as_pcwstr();
         let window_title = format!("{:?}\0", self.id).encode_utf16().collect::<Vec<u16>>(); //

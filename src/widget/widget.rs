@@ -1,7 +1,6 @@
-use std::rc::Rc;
+use std::{os::raw::c_void, rc::Rc};
 
 use wgpu::Color;
-use windows::Win32::Foundation::HWND;
 
 /// A Widget defines a UI element and can be implemented on basically any struct.
 /// It requires the `draw` method to be implemented, which takes a parent window handle and returns a handle to the created widget. It should itself draw it's children, if any.
@@ -22,7 +21,7 @@ pub trait Widget {
     /// Draws the widget and returns a handle to the created widget.
     /// The parent window handle is passed as an argument.
     /// The widget should draw its children, if it has any.
-    fn draw(&self, hwnd_parent: HWND) -> HWND;
+    // fn draw(&self, hwnd_parent: *mut c_void) -> *mut c_void;
     fn children(&self) -> Vec<Rc<dyn Widget>> {
         vec![] // Default implementation returns an empty vector
     }
