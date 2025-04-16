@@ -2,6 +2,8 @@ use std::rc::Rc;
 
 use crate::{Widget, widget::style::decoration::BoxDecoration, window::State};
 use wgpu::Color;
+
+#[cfg(target_os = "windows")]
 use windows::{
     Win32::{
         Foundation::{COLORREF, HWND, RECTL},

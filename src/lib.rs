@@ -8,6 +8,7 @@ pub mod widget;
 pub mod platform;
 pub mod rendering;
 
+#[cfg(target_os = "windows")]
 use platform::windows;
 pub use window::app::App;
 pub use platform::Platform;
@@ -16,21 +17,12 @@ pub use rendering::render_object::RenderObject;
 
 
 pub fn run_app<A: Widget + 'static >(root_widget: A) {
-    let platform = if cfg!(target_os = "windows") {
-        Platform::Windows
-    } else if cfg!(target_os = "linux") {
-        Platform::Linux
-    } else {
-        todo!("Platform not supported")
-    };
-    match platform {
-        Platform::Windows => {
-            windows::register_window_class();
-        }
-        _ => {
-            // other specific code here
-        }
-    }
+    let platform: Platform;
+    #[cfg(target_os = "windows")]
+    windows::register_window_class();
+
+    platform = Platform::Windows;
+
     // let win = run_app!(root_widget).unwrap();
     let mut app = App::new(root_widget, platform);
     // root_widget.draw();

@@ -1,5 +1,3 @@
-use windows::Win32::Foundation::COLORREF;
-
 use super::border::Border;
 
 pub struct BoxDecoration {

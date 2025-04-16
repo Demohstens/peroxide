@@ -1,13 +1,8 @@
-use std::f32::consts::E;
 use std::fmt::{Debug, Error};
-use std::rc::Rc;
-use std::sync::Arc;
-use wgpu::SurfaceTarget;
 use winit::application::ApplicationHandler;
 use winit::error::EventLoopError;
 use winit::event::WindowEvent;
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopBuilder};
-use winit::platform::windows::EventLoopBuilderExtWindows;
 use winit::window::{Window, WindowId};
 
 use crate::widget::WidgetTree;

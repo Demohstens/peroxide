@@ -2,6 +2,8 @@ use std::{cell::RefCell, os::raw::c_void, rc::Rc};
 
 use log::{debug, warn, info};
 use wgpu::Color;
+
+#[cfg(target_os = "windows")]
 use windows::{
     core::{PCSTR, PCWSTR}, Win32::{
         Foundation::{COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM},
@@ -15,7 +17,7 @@ use windows::{
 };
 use winit::event::WindowEvent;
 
-use crate::platform::windows::class_name;
+
 
 pub struct RenderObject {
     pub id: u32,
@@ -35,6 +37,7 @@ impl RenderObject {
 
     #[cfg(target_os = "windows")]
     fn draw_windows(&mut self) {
+        use crate::platform::windows::class_name;
         let class_name = class_name::ClassName::RENDEROBJECT.as_pcwstr();
         let window_title = format!("{:?}\0", self.id).encode_utf16().collect::<Vec<u16>>(); //
         let style = if self.parent.is_some() {
