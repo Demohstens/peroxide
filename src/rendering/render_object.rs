@@ -32,7 +32,7 @@ pub struct RenderObject {
 
 impl RenderObject {
     pub fn layout(&mut self) {}
-    pub fn draw(&mut self) {
+    fn draw_windows(&mut self) {
         let class_name = class_name::ClassName::RENDEROBJECT.as_pcwstr();
         let window_title = format!("{:?}\0", self.id).encode_utf16().collect::<Vec<u16>>(); //
         let style = if self.parent.is_some() {
@@ -77,6 +77,19 @@ impl RenderObject {
                 println!("Failed to create window: {:?}", err);
             }
         }
+    }
+    fn draw_linux(&mut self) {
+        // Linux drawing logic goes here
+        // This is where you would use X11 or Wayland to create and draw the window
+        println!("Drawing on Linux");
+    }
+    pub fn draw(&mut self) {
+        #[cfg(target_os = "windows")]
+        self.draw_windows();
+        #[cfg(target_os = "linux")]
+        self.draw_linux();
+
+        
     }
     pub fn handle_event(&mut self, event: WindowEvent) {
         // Event handling logic goes here
