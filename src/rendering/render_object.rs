@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, os::raw::c_void, rc::Rc};
 
 use log::{debug, warn, info};
 use wgpu::Color;
@@ -23,8 +23,8 @@ pub struct RenderObject {
     pub x: i32,
     pub y: i32,
     pub color: Color,
-    pub handle: Option<HWND>,
-    pub parent: Option<HWND>,
+    pub handle: Option<*mut c_void>,
+    pub parent: Option<*mut c_void>,
     pub is_visible: bool,
     pub is_enabled: bool,
     pub input_handler: Option<Box<dyn FnMut(WindowEvent)>>,
@@ -43,7 +43,7 @@ impl RenderObject {
             WS_OVERLAPPEDWINDOW |
             WS_VISIBLE // No WS_CHILD for root
         };
-        let parent_hwnd = self.parent.unwrap_or(HWND(std::ptr::null_mut()));
+        let parent_hwnd = self.parent.unwrap_or((std::ptr::null_mut()));
         println!("{:?}", self.id);
         let hwnd_result = unsafe {
             CreateWindowExW(
@@ -57,7 +57,7 @@ impl RenderObject {
                 self.constraints
                     .height
                     .unwrap_or(self.constraints.min_height) as i32, // <-- Fix here
-                    Some(parent_hwnd),
+                    Some(HWND(parent_hwnd)),
                 None,
                 None,
                 Some(self as *mut RenderObject as *const std::ffi::c_void),
@@ -65,7 +65,7 @@ impl RenderObject {
         };
         match hwnd_result {
             Ok(handle) => {
-                self.handle = Some(handle);
+                self.handle = Some(handle.0);
                 // for child in &self. {
                 //     let mut child = child.borrow_mut();
                 //     child.parent = Some(handle);

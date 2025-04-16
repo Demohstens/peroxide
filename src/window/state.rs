@@ -47,7 +47,7 @@ impl State {
             _ => panic!("Unsupported window handle type"),
         };
 
-        widget_tree.draw(hwnd);
+        widget_tree.draw(hwnd.0);
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {

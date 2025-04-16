@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{os::raw::c_void, rc::Rc};
 
 use crate::{rendering::render_object::{self, Constraints}, RenderObject, Widget};
 
@@ -41,7 +41,7 @@ impl WidgetTree {
         return tree;
     }
 
-    pub fn draw(&mut self, hwnd_parent: windows::Win32::Foundation::HWND) {
+    pub fn draw(&mut self, hwnd_parent: *mut c_void) {
         match self.root.render_object.as_mut() {
             Some(render_object) => {
                 render_object.parent = Some(hwnd_parent);
