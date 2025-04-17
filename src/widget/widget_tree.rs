@@ -46,18 +46,7 @@ impl WidgetTree {
     }
 
     pub fn handle_event(&self, event: PeroxideEvent) {
-        match event.event_type {
-            EventType::MouseMove(x, y) => {
-                println!("Widget tree recieved mouse move at: ({}, {})", x, y);
-            }
-            EventType::MouseClick => {
-                // Handle mouse click event
-            }
-            EventType::KeyPress => {
-                // Handle key press event
-            }
-            _ => {}
-        }
+        {}
     }
 
 
@@ -69,7 +58,7 @@ struct WidgetRootNode {
     render_object: Option<RenderObject>,
 }
 impl WidgetRootNode {
-    
+   
 
     pub fn new(widget: Rc<Box<dyn Widget>>) -> Self {
         let width = widget.width();

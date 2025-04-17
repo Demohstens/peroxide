@@ -7,13 +7,17 @@ fn main() {
     // Replace with the correct way to create a Button widget
     let btn = peroxide::widget::Button {
         parent: None,
-        text: String::from("Click me"),
         x: 0,
+        color: Color::RED,
         y: 0,
         width: 100,
         height: 40,
         id: 2,
         child: None,
+        on_click: Some(Box::new(|ev| {
+            println!("Button clicked!");
+        })),
+        decoration: None,
     };
     let container = Container {
         parent: None,

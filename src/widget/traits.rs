@@ -1,9 +1,9 @@
-use crate::Widget;
+use crate::{PeroxideEvent, Widget};
 
 #[allow(unused_variables)]
 
 pub trait Interactable {
-    fn on_click(&self, callback: fn()) {}
+    fn on_click(&self, event: PeroxideEvent) {}
     fn on_hover(&self, callback: fn()) {}
     fn on_key_press(&self, callback: fn()) {}
     fn on_key_release(&self, callback: fn()) {}
@@ -24,8 +24,8 @@ pub trait Stateful<T> {
 
 pub trait Button: Interactable + Widget {
     /// Default implementation calls the callback immediately
-    fn on_click(&self, callback: fn()) {
-        callback(); 
+    fn on_click(&self, event: PeroxideEvent) {
+        todo!()
     }
     /// Default implementation calls the callback immediately
     fn on_hover(&self, callback: fn()) {

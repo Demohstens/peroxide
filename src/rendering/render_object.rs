@@ -4,16 +4,15 @@ use wgpu::Color;
 
 #[cfg(target_os = "windows")]
 use windows::{
-    core::PCWSTR, Win32::{
+    Win32::{
         Foundation::HWND,
         UI::WindowsAndMessaging::{
-            CreateWindowExW, WINDOW_EX_STYLE, WS_CHILD, WS_OVERLAPPEDWINDOW, WS_VISIBLE
+            CreateWindowExW, WINDOW_EX_STYLE, WS_CHILD, WS_OVERLAPPEDWINDOW, WS_VISIBLE,
         },
-    }
+    },
+    core::PCWSTR,
 };
-use winit::event::WindowEvent;
-
-
+use crate::PeroxideEvent;
 
 pub struct RenderObject {
     pub id: u32,
@@ -25,7 +24,7 @@ pub struct RenderObject {
     pub parent: Option<*mut c_void>,
     pub is_visible: bool,
     pub is_enabled: bool,
-    pub input_handler: Option<Box<dyn FnMut(WindowEvent)>>,
+    pub input_handler: Option<Box<dyn FnMut(PeroxideEvent)>>,
 }
 
 impl RenderObject {
@@ -35,12 +34,13 @@ impl RenderObject {
     fn draw_windows(&mut self) {
         use crate::platform::windows::class_name;
         let class_name = class_name::ClassName::RENDEROBJECT.as_pcwstr();
-        let window_title = format!("{:?}\0", self.id).encode_utf16().collect::<Vec<u16>>(); //
+        let window_title = format!("{:?}\0", self.id)
+            .encode_utf16()
+            .collect::<Vec<u16>>(); //
         let style = if self.parent.is_some() {
             WS_CHILD | WS_VISIBLE
         } else {
-            WS_OVERLAPPEDWINDOW |
-            WS_VISIBLE // No WS_CHILD for root
+            WS_OVERLAPPEDWINDOW | WS_VISIBLE // No WS_CHILD for root
         };
         let parent_hwnd = self.parent.unwrap_or(std::ptr::null_mut());
         println!("{:?}", self.id);
@@ -56,7 +56,7 @@ impl RenderObject {
                 self.constraints
                     .height
                     .unwrap_or(self.constraints.min_height) as i32, // <-- Fix here
-                    Some(HWND(parent_hwnd)),
+                Some(HWND(parent_hwnd)),
                 None,
                 None,
                 Some(self as *mut RenderObject as *const std::ffi::c_void),
@@ -71,7 +71,7 @@ impl RenderObject {
                 //     child.draw();
                 //     println!("Children");
 
-                // } 
+                // }
                 println!("Window created");
             }
             Err(err) => {
@@ -89,15 +89,6 @@ impl RenderObject {
         self.draw_windows();
         #[cfg(target_os = "linux")]
         self.draw_linux();
-
-        
-    }
-    pub fn handle_event(&mut self, event: WindowEvent) {
-        // Event handling logic goes here
-        // This is where you would handle events like mouse clicks, key presses, etc.
-        if let Some(handler) = &mut self.input_handler {
-            handler(event);
-        }
     }
 
     /// Creates a debugging render object with default values.

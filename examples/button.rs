@@ -1,15 +1,18 @@
-use peroxide::{button, widget::widgets::button::Button, Widget};
+use peroxide::{widget::widgets::button::Button, Widget};
+use wgpu::Color;
 
 fn main() {
-    let btn: Button = Button {
-        parent: None,
-        child: Some(Box::new("Hello World!")),
-        text: "Hello".to_string(),
-        x: 200,
-        y: 50,
+    let btn: Button = macros::button!(
+        x: 50,
+        y: 20,
         width: 100,
-        height: 30,
-        id: 1,
-    };
+        color: Color::RED,
+        child: Some(Box::new("Click me")),
+        height: 40,
+        id: 2,
+        on_click: Some(Box::new(|_| {
+            println!("Button clicked!");
+        }))
+    );
     peroxide::run_app(btn);
 }

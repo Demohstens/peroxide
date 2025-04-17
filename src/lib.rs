@@ -18,7 +18,6 @@ pub use window::app::App;
 pub use platform::Platform;
 pub use widget::widget::*;
 pub use rendering::render_object::RenderObject;
-use winit::event_loop::EventLoopProxy;
 
 
 
