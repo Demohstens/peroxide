@@ -5,3 +5,4 @@ pub mod widget_tree;
 
 pub use widgets::button::Button;
 pub use widget_tree::WidgetTree;
+pub use widgets::container::*;

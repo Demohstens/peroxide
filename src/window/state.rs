@@ -1,23 +1,10 @@
-use std::ptr::null_mut;
-
-use wgpu::{
-    Device, Queue, Surface, SurfaceConfiguration,
-    rwh::{HasWindowHandle, RawWindowHandle},
-};
+use wgpu::rwh::{HasWindowHandle, RawWindowHandle};
 
 #[cfg(target_os = "windows")]
-use windows::{
-    Win32::{
-        Foundation::HWND,
-        UI::WindowsAndMessaging::{
-            CreateWindowExW, HMENU, HWND_TOP, WINDOW_EX_STYLE, WS_CHILD, WS_TABSTOP, WS_VISIBLE,
-        },
-    },
-    core::PCWSTR,
-};
-use winit::{dpi::PhysicalSize, event::WindowEvent, window::Window};
+use windows::Win32::Foundation::HWND;
+use winit::{event::WindowEvent, window::Window};
 
-use crate::{Platform, Widget, widget::WidgetTree};
+use crate::{Platform, widget::WidgetTree};
 
 pub struct State {
     pub surface: wgpu::Surface<'static>,

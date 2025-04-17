@@ -1,20 +1,7 @@
 use std::rc::Rc;
 
-use crate::{Widget, widget::style::decoration::BoxDecoration, window::State};
+use crate::{Widget, widget::style::decoration::BoxDecoration};
 use wgpu::Color;
-
-#[cfg(target_os = "windows")]
-use windows::{
-    Win32::{
-        Foundation::{COLORREF, HWND, RECTL},
-        Graphics::Gdi::{CreateSolidBrush, FillRect, GetDC, ReleaseDC},
-        UI::WindowsAndMessaging::{
-            CreateWindowExW, HMENU, WINDOW_EX_STYLE, WINDOW_STYLE, WS_BORDER, WS_CHILD, WS_TABSTOP,
-            WS_VISIBLE,
-        },
-    },
-    core::PCWSTR,
-};
 
 pub struct Container {
     pub parent: Option<Box<dyn Widget>>,
@@ -70,5 +57,57 @@ impl Widget for Container {
             Some(child) => vec![Rc::clone(child)],
             None => vec![],
         }
+    }
+}
+
+/// Generates a container struct with the given name and fields.
+/// Requires:
+/// width: i32
+/// height: i32
+/// color: Color
+/// child: Option<Rc<dyn Widget>>
+#[macro_export]
+macro_rules! container {
+    {
+        width: $width:expr,
+        height: $height:expr,
+        color: $color:expr,
+        child: $child:expr,
+    } => {
+        peroxide::widget::Container {
+            height: $height,
+            width: $width,
+            color: $color,
+            parent: None,
+            child: $child,
+            border: false,
+            x: 0,
+            y: 0,
+            id: 0,
+            decoration: None,
+        };
+    };
+    {
+        x: $x:expr,
+        y: $y:expr,
+        width: $width:expr,
+        height: $height:expr,
+        color: $color:expr,
+        child: $child:expr,
+        decoration: $decoration:expr,
+    } => {
+        peroxide::widget::Container {
+            height: $height,
+            width: $width,
+            color: $color,
+            parent: None,
+            child: $child,
+            border: false,
+            x: $x,
+            y: $y,
+            id: 0,
+            decoration: $decoration,
+
+        };
     }
 }

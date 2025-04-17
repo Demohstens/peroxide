@@ -1,9 +1,19 @@
 use std::sync::Mutex;
 
 use wgpu::Color;
-use windows::{core::PCWSTR, Win32::{Foundation::{COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM}, Graphics::Gdi::{BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, PAINTSTRUCT}, UI::WindowsAndMessaging::{DefWindowProcW, GetWindowLongPtrW, RegisterClassW, SetWindowLongPtrW, CS_HREDRAW, CS_VREDRAW, GWLP_USERDATA, WM_CREATE, WM_PAINT, WNDCLASSW}}};
+use windows::{
+    core::PCWSTR, Win32::{
+        Foundation::{COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM},
+        Graphics::Gdi::{
+            BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, PAINTSTRUCT,
+        },
+        UI::WindowsAndMessaging::{
+            DefWindowProcW, GetWindowLongPtrW, RegisterClassW, SetWindowLongPtrW, CS_HREDRAW, CS_VREDRAW, GWLP_USERDATA, WM_CREATE, WM_LBUTTONUP, WM_PAINT, WNDCLASSW
+        },
+    }
+};
 
-use crate::RenderObject;
+use crate::{RenderObject, window::app::UserEvent};
 
 // Register the window class once at startup
 pub fn register_window_class() -> PCWSTR {
@@ -23,11 +33,12 @@ pub fn register_window_class() -> PCWSTR {
         };
         unsafe { RegisterClassW(&wnd_class) };
         unsafe { CLASS_NAME = Some(class_name) };
-        unsafe { CLASS_NAME_PTR = ptr; }
+        unsafe {
+            CLASS_NAME_PTR = ptr;
+        }
     });
     unsafe { PCWSTR(CLASS_NAME_PTR as *const u16) }
 }
-
 
 extern "system" fn render_object_proc(
     hwnd: HWND,
@@ -39,7 +50,8 @@ extern "system" fn render_object_proc(
         match msg {
             WM_CREATE => {
                 // Store pointer to RenderObject in window user data
-                let createstruct = lparam.0 as *const windows::Win32::UI::WindowsAndMessaging::CREATESTRUCTW;
+                let createstruct =
+                    lparam.0 as *const windows::Win32::UI::WindowsAndMessaging::CREATESTRUCTW;
                 let render_object_ptr = (*createstruct).lpCreateParams as *mut RenderObject;
                 SetWindowLongPtrW(hwnd, GWLP_USERDATA, render_object_ptr as isize);
                 LRESULT(0)
@@ -59,6 +71,17 @@ extern "system" fn render_object_proc(
                 FillRect(hdc, &ps.rcPaint, brush);
                 let _ = DeleteObject(windows::Win32::Graphics::Gdi::HGDIOBJ(brush.0));
                 let _ = EndPaint(hwnd, &ps);
+                LRESULT(0)
+            }
+            WM_LBUTTONUP => {
+                if let Some(proxy) = crate::window::PROXY.get() {
+                    let x = (lparam.0 & 0xffff) as i16 as i32;
+                    let y = ((lparam.0 >> 16) & 0xffff) as i16 as i32;
+                    // 3) send the event
+                    // let res: Result<(), windows::core::Error> = MoveWindow(hwnd, x, x, x * 10, y*5, true);
+
+                    let _ = proxy.send_event(UserEvent::MouseUp { x, y });
+                }
                 LRESULT(0)
             }
             _ => DefWindowProcW(hwnd, msg, wparam, lparam),

@@ -1,8 +1,9 @@
 use std::fmt::{Debug, Error};
+use std::sync::OnceLock;
 use winit::application::ApplicationHandler;
 use winit::error::EventLoopError;
 use winit::event::WindowEvent;
-use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopBuilder};
+use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopProxy};
 use winit::window::{Window, WindowId};
 
 use crate::widget::WidgetTree;
@@ -12,6 +13,14 @@ use super::State;
 // pub struct Window {
 //     pub window: Option<winitWindow>,
 // }
+
+#[derive(Debug)]
+pub enum UserEvent {
+    MouseUp { x: i32, y: i32 },
+    RawInput, // expand as needed
+}
+
+pub static PROXY: OnceLock<EventLoopProxy<UserEvent>> = OnceLock::new();
 
 impl App {
     pub fn new<A: Widget + 'static>(root: A, platform: Platform) -> Self {
@@ -24,20 +33,23 @@ impl App {
     }
 
     pub fn run(&mut self) -> Result<(), EventLoopError> {
-        let event_loop = EventLoop::new().unwrap();
-        // let event_loop = EventLoopBuilder::default().with_any_thread(true).build().unwrap();
-
+        let event_loop = EventLoop::<UserEvent>::with_user_event().build()?;        // let event_loop = EventLoopBuilder::default().with_any_thread(true).build().unwrap();
         event_loop.set_control_flow(ControlFlow::Wait);
+        let proxy: EventLoopProxy<UserEvent> = event_loop.create_proxy();
+        PROXY.set(proxy).unwrap();
 
         event_loop.run_app(self)
     }
 
-    pub fn handle_event(&self, event: WindowEvent) {
+    pub fn handle_event(&self, event: UserEvent) {
         match event {
-            WindowEvent::CursorEntered { device_id, .. } => {
-                println!("Cursor entered the window; device ID: {:?}", device_id);
+            UserEvent::MouseUp { x, y } => {
+                println!("Mouse up event received at ({}, {})", x, y);
+                // Handle mouse up event here
             }
-            _ => (),
+            _ => {
+                
+            },
         }
     }
 }
@@ -48,7 +60,7 @@ pub struct App {
     pub widgets: WidgetTree,
 }
 
-impl<'a> ApplicationHandler for App {
+impl<'a> ApplicationHandler<UserEvent> for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let window = event_loop
             .create_window(Window::default_attributes())
@@ -68,6 +80,10 @@ impl<'a> ApplicationHandler for App {
                 event_loop.exit();
             }
         }
+    }
+
+    fn user_event(&mut self, event_loop: &ActiveEventLoop, event: UserEvent) {
+        self.handle_event(event);
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
@@ -109,7 +125,7 @@ impl<'a> ApplicationHandler for App {
                     event_loop.exit();
                 }
             },
-            event => self.handle_event(event),
+            _ => {},
         }
     }
 }

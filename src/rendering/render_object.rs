@@ -1,17 +1,13 @@
-use std::{cell::RefCell, os::raw::c_void, rc::Rc};
+use std::os::raw::c_void;
 
-use log::{debug, warn, info};
 use wgpu::Color;
 
 #[cfg(target_os = "windows")]
 use windows::{
-    core::{PCSTR, PCWSTR}, Win32::{
-        Foundation::{COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM},
-        Graphics::Gdi::{
-            BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, GetDC, GetWindowExtEx, ReleaseDC, SetBkColor, PAINTSTRUCT
-        },
+    core::PCWSTR, Win32::{
+        Foundation::HWND,
         UI::WindowsAndMessaging::{
-            CreateWindowExW, DefWindowProcW, GetClientRect, GetWindowLongPtrW, RegisterClassW, SetWindowLongPtrW, CS_HREDRAW, CS_VREDRAW, GWLP_USERDATA, WINDOW_EX_STYLE, WM_CREATE, WM_PAINT, WNDCLASSW, WS_CHILD, WS_OVERLAPPEDWINDOW, WS_VISIBLE
+            CreateWindowExW, WINDOW_EX_STYLE, WS_CHILD, WS_OVERLAPPEDWINDOW, WS_VISIBLE
         },
     }
 };
@@ -46,7 +42,7 @@ impl RenderObject {
             WS_OVERLAPPEDWINDOW |
             WS_VISIBLE // No WS_CHILD for root
         };
-        let parent_hwnd = self.parent.unwrap_or((std::ptr::null_mut()));
+        let parent_hwnd = self.parent.unwrap_or(std::ptr::null_mut());
         println!("{:?}", self.id);
         let hwnd_result = unsafe {
             CreateWindowExW(
