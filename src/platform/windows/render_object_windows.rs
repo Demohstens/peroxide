@@ -13,7 +13,7 @@ use windows::{
     }
 };
 
-use crate::{RenderObject, window::app::UserEvent};
+use crate::{PeroxideEvent, RenderObject};
 
 // Register the window class once at startup
 pub fn register_window_class() -> PCWSTR {
@@ -80,7 +80,7 @@ extern "system" fn render_object_proc(
                     // 3) send the event
                     // let res: Result<(), windows::core::Error> = MoveWindow(hwnd, x, x, x * 10, y*5, true);
 
-                    let _ = proxy.send_event(UserEvent::MouseUp { x, y });
+                    let _ = proxy.send_event(PeroxideEvent::MouseUp(x, y));
                 }
                 LRESULT(0)
             }

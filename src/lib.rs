@@ -7,11 +7,13 @@ pub mod window;
 pub mod widget;
 pub mod platform;
 pub mod rendering;
+pub mod event;
 
 use std::sync::OnceLock;
 
 #[cfg(target_os = "windows")]
 use platform::windows;
+pub use event::{EventType, PeroxideEvent};
 pub use window::app::App;
 pub use platform::Platform;
 pub use widget::widget::*;

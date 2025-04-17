@@ -1,6 +1,6 @@
 use std::{os::raw::c_void, rc::Rc};
 
-use crate::{rendering::render_object::{self, Constraints}, RenderObject, Widget};
+use crate::{rendering::render_object::Constraints, RenderObject, Widget};
 
 
 /// The Widget tree is the main structure that holds the widgets and their relationships.
@@ -14,26 +14,6 @@ impl WidgetTree {
     pub fn new(root: Box<dyn Widget>) -> Self {
         
         let widget = Rc::new(root);
-        let render_object = RenderObject {
-            id: 0,
-            constraints: Constraints{
-                min_width: widget.width(),
-                min_height: widget.height(),
-                max_width: Some(1000),
-                max_height: Some(1000),
-                width: Some(widget.width()),
-                height: Some(widget.height()),
-            }, 
-            x: 0,
-            y: 0,
-            color: widget.color(),
-            handle: None,
-            parent: None,
-            // children: vec![],
-            is_visible: true,
-            is_enabled: true,
-            input_handler: None,
-        };
         let tree = WidgetTree {
             root: WidgetRootNode::new(widget)
         };
@@ -52,9 +32,7 @@ impl WidgetTree {
                             ro.parent = Some(render_object.handle.unwrap());
                             ro.draw();
                         },
-                        None => (
-                           unreachable!()
-                        )
+                        None => unreachable!()
                     }
                     
                 }

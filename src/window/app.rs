@@ -7,20 +7,15 @@ use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopProxy}
 use winit::window::{Window, WindowId};
 
 use crate::widget::WidgetTree;
-use crate::{Platform, Widget};
+use crate::{EventType, PeroxideEvent, Platform, Widget};
 
 use super::State;
 // pub struct Window {
 //     pub window: Option<winitWindow>,
 // }
 
-#[derive(Debug)]
-pub enum UserEvent {
-    MouseUp { x: i32, y: i32 },
-    RawInput, // expand as needed
-}
 
-pub static PROXY: OnceLock<EventLoopProxy<UserEvent>> = OnceLock::new();
+pub static PROXY: OnceLock<EventLoopProxy<PeroxideEvent>> = OnceLock::new();
 
 impl App {
     pub fn new<A: Widget + 'static>(root: A, platform: Platform) -> Self {
@@ -33,19 +28,19 @@ impl App {
     }
 
     pub fn run(&mut self) -> Result<(), EventLoopError> {
-        let event_loop = EventLoop::<UserEvent>::with_user_event().build()?;        // let event_loop = EventLoopBuilder::default().with_any_thread(true).build().unwrap();
+        let event_loop = EventLoop::<>::with_user_event().build()?;        // let event_loop = EventLoopBuilder::default().with_any_thread(true).build().unwrap();
         event_loop.set_control_flow(ControlFlow::Wait);
-        let proxy: EventLoopProxy<UserEvent> = event_loop.create_proxy();
+        let proxy: EventLoopProxy<PeroxideEvent> = event_loop.create_proxy();
         PROXY.set(proxy).unwrap();
 
         event_loop.run_app(self)
     }
 
-    pub fn handle_event(&self, event: UserEvent) {
-        match event {
-            UserEvent::MouseUp { x, y } => {
-                println!("Mouse up event received at ({}, {})", x, y);
-                // Handle mouse up event here
+    pub fn handle_event(&self, event: PeroxideEvent) {
+        match event.event_type {
+            EventType::MouseUp => {
+                println!("Mouse up event: x: {}, y: {}", event.x, event.y);
+                // Handle mouse up event
             }
             _ => {
                 
@@ -60,7 +55,7 @@ pub struct App {
     pub widgets: WidgetTree,
 }
 
-impl<'a> ApplicationHandler<UserEvent> for App {
+impl<'a> ApplicationHandler<PeroxideEvent> for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let window = event_loop
             .create_window(Window::default_attributes())
@@ -82,7 +77,7 @@ impl<'a> ApplicationHandler<UserEvent> for App {
         }
     }
 
-    fn user_event(&mut self, event_loop: &ActiveEventLoop, event: UserEvent) {
+    fn user_event(&mut self, event_loop: &ActiveEventLoop, event: PeroxideEvent) {
         self.handle_event(event);
     }
 
