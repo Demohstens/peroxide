@@ -21,18 +21,20 @@ fn main() {
     };
     let container = Container {
         parent: None,
-        child: Some(Rc::new(Container {
-            parent: None,
-            child: Some(Rc::new(btn)),
-            x: 0,
-            y: 0,
-            width: 400,
-            height: 100,
-            id: 3,
-            decoration: None,
-            color: Color::RED, // Blue color
-            border: true,
-        })),
+        children: Rc::new(vec![
+            Rc::new(Container {
+                parent: None,
+                children: Rc::new(vec![Rc::new(btn)]),
+                x: 0,
+                y: 0,
+                width: 400,
+                height: 100,
+                id: 3,
+                decoration: None,
+                color: Color::RED, // Blue color
+                border: true,
+            })
+        ]),
         x: 50,
         y: 50,
         width: 500,

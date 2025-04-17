@@ -43,7 +43,6 @@ impl RenderObject {
             WS_OVERLAPPEDWINDOW | WS_VISIBLE // No WS_CHILD for root
         };
         let parent_hwnd = self.parent.unwrap_or(std::ptr::null_mut());
-        println!("{:?}", self.id);
         let hwnd_result = unsafe {
             CreateWindowExW(
                 WINDOW_EX_STYLE(0),
@@ -65,13 +64,6 @@ impl RenderObject {
         match hwnd_result {
             Ok(handle) => {
                 self.handle = Some(handle.0);
-                // for child in &self. {
-                //     let mut child = child.borrow_mut();
-                //     child.parent = Some(handle);
-                //     child.draw();
-                //     println!("Children");
-
-                // }
                 println!("Window created");
             }
             Err(err) => {
@@ -85,6 +77,7 @@ impl RenderObject {
         println!("Drawing on Linux");
     }
     pub fn draw(&mut self) {
+        println!("Drawing render object with id: {}", self.id);
         #[cfg(target_os = "windows")]
         self.draw_windows();
         #[cfg(target_os = "linux")]

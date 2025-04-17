@@ -43,7 +43,7 @@ pub fn container(input: TokenStream) -> TokenStream {
     let mut width = None;
     let mut height = None;
     let mut color = None;
-    let mut child = None;
+    let mut children = None;
     let mut parent = quote! { None };
     let mut border = quote! { false };
     let mut x = quote! { 0 };
@@ -58,7 +58,7 @@ pub fn container(input: TokenStream) -> TokenStream {
             "width" => width = Some(quote! { #value }),
             "height" => height = Some(quote! { #value }),
             "color" => color = Some(quote! { #value }),
-            "child" => child = Some(quote! { #value }),
+            "children" => children = Some(quote! { #value }),
             "parent" => parent = quote! { #value },
             "border" => border = quote! { #value },
             "x" => x = quote! { #value },
@@ -72,14 +72,14 @@ pub fn container(input: TokenStream) -> TokenStream {
     let width = width.expect("Missing required field: width");
     let height = height.expect("Missing required field: height");
     let color = color.expect("Missing required field: color");
-    let child = child.expect("Missing required field: child");
+    let children = children.expect("Missing required field: children");
 
     let expanded = quote! {
         peroxide::widget::Container {
             width: #width,
             height: #height,
             color: #color,
-            child: #child,
+            children: #children,
             parent: #parent,
             border: #border,
             x: #x,
@@ -103,7 +103,6 @@ pub fn button(input: TokenStream) -> TokenStream {
     let mut color = None;
     let mut child = None;
     let mut parent = quote! { None };
-    // let mut border = quote! { false };
     let mut x = quote! { 0 };
     let mut y = quote! { 0 };
     let mut id = quote! { 0 };
@@ -119,7 +118,6 @@ pub fn button(input: TokenStream) -> TokenStream {
             "color" => color = Some(quote! { #value }),
             "child" => child = Some(quote! { #value }),
             "parent" => parent = quote! { #value },
-            // "border" => border = quote! { #value },
             "x" => x = quote! { #value },
             "y" => y = quote! { #value },
             "id" => id = quote! { #value },
@@ -139,12 +137,13 @@ pub fn button(input: TokenStream) -> TokenStream {
             color: #color,
             child: #child,
             parent: #parent,
-            // border: #border,
             x: #x,
             y: #y,
             id: #id,
             decoration: #decoration,
-            on_click: #on_click,
+            on_click: Some(Box::new(|ev| {
+                #on_click
+            })),
         }
     };
 

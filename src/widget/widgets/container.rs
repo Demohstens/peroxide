@@ -5,7 +5,7 @@ use wgpu::Color;
 
 pub struct Container {
     pub parent: Option<Box<dyn Widget>>,
-    pub child: Option<Rc<dyn Widget>>,
+    pub children: Rc<Vec<Rc<dyn Widget>>>,
     pub border: bool,
     pub x: i32,
     pub y: i32,
@@ -19,7 +19,7 @@ impl Container {
     pub fn new() -> Self {
         Self {
             parent: None,
-            child: None,
+            children: Rc::new(vec![]),
             border: false,
             x: 0,
             y: 0,
@@ -53,10 +53,7 @@ impl Widget for Container {
         self.id
     }
     fn children(&self) -> Vec<Rc<dyn Widget>> {
-        match &self.child {
-            Some(child) => vec![Rc::clone(child)],
-            None => vec![],
-        }
+        Rc::clone(&self.children).to_vec()
     }
 }
 
