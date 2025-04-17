@@ -29,16 +29,30 @@ impl PeroxideEvent {
             id: 0,
         }
     }
+
+    #[allow(non_snake_case)]
+    pub fn MouseMove(x: i32, y: i32) -> Self {
+        PeroxideEvent {
+            event_type: EventType::MouseMove(x as u32, y as u32),
+            x,
+            y,
+            timestamp: time::Instant::now(),
+            widget_id: 0,
+            device_id: 0,
+            key_code: 0x01 | 0x02 | 0x04, // left, right, middle
+            id: 0,
+        }
+    }
 }
 
 /// Indicates the type of event that occurred and passes necessary data.
 #[derive(Debug)]
 pub enum EventType {
-    MouseMove,
+    MouseMove(u32, u32),
     MouseClick,
     MouseUp,
     KeyPress,
     KeyRelease,
-    Resize((u32, u32)),
+    Resize(u32, u32),
     Close,
 }

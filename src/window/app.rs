@@ -1,4 +1,3 @@
-use std::fmt::{Debug, Error};
 use std::sync::OnceLock;
 use winit::application::ApplicationHandler;
 use winit::error::EventLoopError;
@@ -7,7 +6,7 @@ use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopProxy}
 use winit::window::{Window, WindowId};
 
 use crate::widget::WidgetTree;
-use crate::{EventType, PeroxideEvent, Platform, Widget};
+use crate::{PeroxideEvent, Platform, Widget};
 
 use super::State;
 // pub struct Window {
@@ -37,15 +36,7 @@ impl App {
     }
 
     pub fn handle_event(&self, event: PeroxideEvent) {
-        match event.event_type {
-            EventType::MouseUp => {
-                println!("Mouse up event: x: {}, y: {}", event.x, event.y);
-                // Handle mouse up event
-            }
-            _ => {
-                
-            },
-        }
+        self.widgets.handle_event(event);
     }
 }
 

@@ -1,6 +1,8 @@
 use std::{os::raw::c_void, rc::Rc};
 
-use crate::{rendering::render_object::Constraints, RenderObject, Widget};
+use crate::{rendering::render_object::Constraints, EventType, PeroxideEvent, RenderObject, Widget};
+
+use super::Interactable;
 
 
 /// The Widget tree is the main structure that holds the widgets and their relationships.
@@ -42,6 +44,23 @@ impl WidgetTree {
             }
         }
     }
+
+    pub fn handle_event(&self, event: PeroxideEvent) {
+        match event.event_type {
+            EventType::MouseMove(x, y) => {
+                println!("Widget tree recieved mouse move at: ({}, {})", x, y);
+            }
+            EventType::MouseClick => {
+                // Handle mouse click event
+            }
+            EventType::KeyPress => {
+                // Handle key press event
+            }
+            _ => {}
+        }
+    }
+
+
 }
 
 struct WidgetRootNode {
@@ -94,6 +113,8 @@ impl WidgetRootNode {
             render_object: Some(render_object),
         }
     }
+
+ 
 }
 
 struct WidgetNode {

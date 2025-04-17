@@ -8,7 +8,7 @@ use windows::{
             BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, PAINTSTRUCT,
         },
         UI::WindowsAndMessaging::{
-            DefWindowProcW, GetWindowLongPtrW, RegisterClassW, SetWindowLongPtrW, CS_HREDRAW, CS_VREDRAW, GWLP_USERDATA, WM_CREATE, WM_LBUTTONUP, WM_PAINT, WNDCLASSW
+            DefWindowProcW, GetWindowLongPtrW, RegisterClassW, SetWindowLongPtrW, CS_HREDRAW, CS_VREDRAW, GWLP_USERDATA, WM_CREATE, WM_LBUTTONUP, WM_MOUSEMOVE, WM_PAINT, WNDCLASSW
         },
     }
 };
@@ -81,6 +81,15 @@ extern "system" fn render_object_proc(
                     // let res: Result<(), windows::core::Error> = MoveWindow(hwnd, x, x, x * 10, y*5, true);
 
                     let _ = proxy.send_event(PeroxideEvent::MouseUp(x, y));
+                }
+                LRESULT(0)
+            }
+            WM_MOUSEMOVE => {
+                if let Some(proxy) = crate::window::PROXY.get() {
+                    let x = (lparam.0 & 0xffff) as i16 as i32;
+                    let y = ((lparam.0 >> 16) & 0xffff) as i16 as i32;
+                    
+                    let _ = proxy.send_event(PeroxideEvent::MouseMove(x, y));
                 }
                 LRESULT(0)
             }

@@ -1,16 +1,17 @@
 use std::rc::Rc;
 
-use peroxide::{container, run_app};
+use peroxide::run_app;
 use wgpu::Color;
 
 fn main() {
-    let con = peroxide::container!(
+    let con = macros::container!(
         width: 50,
         height: 50,
         color: Color::GREEN,
         child: Some(Rc::new("Hello World")),
     );
-    run_app(peroxide::container!(
+    
+    run_app(macros::container!(
         x: 10,
         y: 10,
         width: 500,
