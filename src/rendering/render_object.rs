@@ -12,7 +12,7 @@ use windows::{
     },
     core::PCWSTR,
 };
-use crate::PeroxideEvent;
+use crate::{platform::window_class::WindowClass, PeroxideEvent};
 
 pub struct RenderObject {
     pub id: u32,
@@ -25,6 +25,8 @@ pub struct RenderObject {
     pub is_visible: bool,
     pub is_enabled: bool,
     pub input_handler: Option<Box<dyn FnMut(PeroxideEvent)>>,
+    // #[cfg(target_os = "windows")]
+    // pub native_element: Option<WindowClass>,
 }
 
 impl RenderObject {
@@ -43,7 +45,7 @@ impl RenderObject {
             WS_OVERLAPPEDWINDOW | WS_VISIBLE // No WS_CHILD for root
         };
         let parent_hwnd = self.parent.unwrap_or(std::ptr::null_mut());
-        let hwnd_result = unsafe {
+        let hwnd_result: Result<HWND, windows::core::Error> = unsafe {
             CreateWindowExW(
                 WINDOW_EX_STYLE(0),
                 class_name,
@@ -84,30 +86,7 @@ impl RenderObject {
         self.draw_linux();
     }
 
-    /// Creates a debugging render object with default values.
-    /// This is useful for testing and debugging purposes.
-    /// It is a simple square
-    pub fn debug() -> Self {
-        RenderObject {
-            id: 0,
-            constraints: Constraints {
-                min_width: 100,
-                min_height: 100,
-                max_width: Some(1000),
-                max_height: Some(1000),
-                width: Some(100),
-                height: Some(100),
-            },
-            x: 10,
-            y: 10,
-            color: Color::BLUE,
-            handle: None,
-            parent: None,
-            is_visible: true,
-            is_enabled: true,
-            input_handler: None,
-        }
-    }
+    
 }
 
 pub struct Constraints {
