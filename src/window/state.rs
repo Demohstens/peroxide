@@ -22,11 +22,22 @@ impl State {
 
         // The instance is a handle to our GPU
         // Backends::all => Vulkan + Metal + DX12 + Browser WebGPU
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
-            #[cfg(not(target_arch = "wasm32"))]
-            backends: wgpu::Backends::PRIMARY,
-            ..Default::default()
-        });
+        let instance;
+        #[cfg(not(target_os = "macos"))]
+        {
+            instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+                #[cfg(not(target_arch = "wasm32"))]
+                backends: wgpu::Backends::PRIMARY,
+                ..Default::default()
+            });
+        }
+        #[cfg(target_os = "macos")]
+        {
+            instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+                backends: wgpu::Backends::METAL,
+                ..Default::default()
+            });
+        }
         let window_ref: &'static Window = Box::leak(Box::new(window));
         let surface = instance.create_surface(window_ref).unwrap();
         // The adapter is a handle to a specific GPU on the system
@@ -39,6 +50,14 @@ impl State {
             };
 
             widget_tree.draw(hwnd.0);
+        }
+        #[cfg(target_os = "macos")]
+        {
+            let ns_view = match window_ref.window_handle().unwrap().as_raw() {
+                RawWindowHandle::AppKit(handle) => handle.ns_view,
+                _ => panic!("Unsupported window handle type on macOS"),
+            };
+            widget_tree.draw(ns_view.as_ptr());
         }
 
         let adapter = instance
@@ -72,22 +91,27 @@ impl State {
             .find(|f| f.is_srgb())
             .copied()
             .unwrap_or(surface_caps.formats[0]);
+
+        println!("Surface format:{:?} {:?}", size.width, size.height);
+
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
             width: size.width,
             height: size.height,
-            present_mode: surface_caps.present_modes[0],
-            alpha_mode: surface_caps.alpha_modes[0],
+            present_mode: wgpu::PresentMode::Fifo,
+            alpha_mode: wgpu::CompositeAlphaMode::Opaque,
             view_formats: vec![],
             desired_maximum_frame_latency: 2,
         };
+        surface.configure(&device, &config);
+        
         State {
-            config: config,
-            device: device,
-            queue: queue,
-            surface: surface,
-            size: size,
+            config,
+            device,
+            queue,
+            surface,
+            size,
             window: window_ref,
         }
     }
@@ -97,6 +121,9 @@ impl State {
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+        if new_size.width == 0 || new_size.height == 0 || new_size.width > 16384 {
+            return; // Ignore invalid M1 resize events[1][4]
+        }
         if new_size.width > 0 && new_size.height > 0 {
             self.size = new_size;
             self.config.width = new_size.width;

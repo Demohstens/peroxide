@@ -10,9 +10,9 @@ fn main() {
         child: Some(Box::new("Click me")),
         height: 40,
         id: 2,
-        on_click: || {
+        on_click: (|| {
             println!("Button clicked!");
-        },
+        })(),
     );
     peroxide::run_app(btn);
 }
