@@ -7,10 +7,10 @@ pub struct Container {
     pub parent: Option<Box<dyn Widget>>,
     pub children: Rc<Vec<Rc<dyn Widget>>>,
     pub border: bool,
-    pub x: i32,
-    pub y: i32,
-    pub width: i32,
-    pub height: i32,
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
     pub color: Color, // Color of the container in RGB format
     pub id: i32,
     pub decoration: Option<BoxDecoration>,
@@ -21,10 +21,10 @@ impl Container {
             parent: None,
             children: Rc::new(vec![]),
             border: false,
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
+            x: 0.0,
+            y: 0.0,
+            width: 0.0,
+            height: 0.0,
             color: Color::WHITE, // Default to white
             id: 0,
             decoration: None,
@@ -33,17 +33,17 @@ impl Container {
 }
 
 impl Widget for Container {
-    fn x(&self) -> i32 {
+    fn x(&self) -> f64 {
         self.x
     }
-    fn y(&self) -> i32 {
+    fn y(&self) -> f64 {
         self.y
     }
-    fn width(&self) -> i32 {
+    fn width(&self) -> f64 {
         self.width
     }
 
-    fn height(&self) -> i32 {
+    fn height(&self) -> f64 {
         self.height
     }
     fn color(&self) -> Color {

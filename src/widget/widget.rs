@@ -11,10 +11,10 @@ use wgpu::Color;
 ///    parent: Option<Box<dyn Widget>>, // use Option<Box<dyn Widget>> to allow for dynamic dispatch
 ///    child: Option<Box<dyn Widget>>,
 ///    text: String, // Text to be rendered onto the widget
-///    x: i32, // X position of the widget relative to the parent widget
-///    y: i32,
-///    width: i32, // Width of the widget
-///    height: i32, // Height of the widget
+///    x: f64, // X position of the widget relative to the parent widget
+///    y: f64,
+///    width: f64, // Width of the widget
+///    height: f64, // Height of the widget
 ///    id: i32, // ID of the widget. Not used yet.
 /// }
 pub trait Widget {
@@ -25,11 +25,11 @@ pub trait Widget {
     fn children(&self) -> Vec<Rc<dyn Widget>> {
         vec![] // Default implementation returns an empty vector
     }
-    fn x(&self) -> i32;
-    fn y(&self) -> i32;
+    fn x(&self) -> f64;
+    fn y(&self) -> f64;
 
-    fn width(&self) -> i32;
-    fn height(&self) -> i32;
+    fn width(&self) -> f64;
+    fn height(&self) -> f64;
     fn color(&self) -> Color {
         Color::RED
     }

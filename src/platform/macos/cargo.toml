@@ -1,0 +1,3 @@
+[dependencies]
+wgpu = {workspace= true, features ="metal"}
+cacao = {version="0.3.2", features=["appkit", "autolayout"] }

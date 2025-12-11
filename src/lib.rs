@@ -10,9 +10,7 @@ pub mod window;
 
 use std::sync::OnceLock;
 
-pub use event::{EventType, PeroxideEvent};
-#[cfg(target_os = "windows")]
-use platform::windows;
+pub use event::PeroxideEvent;
 pub use platform::Platform;
 pub use rendering::render_object::RenderObject;
 pub use widget::widget::*;
@@ -22,7 +20,6 @@ pub fn run_app<A: Widget + 'static>(root_widget: A) {
     let platform: Platform;
     #[cfg(target_os = "windows")]
     {
-        windows::register_window_class();
         platform = Platform::Windows;
     }
 

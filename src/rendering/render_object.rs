@@ -1,14 +1,15 @@
-use std::os::raw::c_void;
+use std::{os::raw::c_void, rc::Rc};
 
-use wgpu::Color;
+use wgpu::{Color, Surface, Texture};
+use winit::dpi::PhysicalPosition;
 
 use crate::PeroxideEvent;
 
 pub struct RenderObject {
     pub id: u32,
     pub constraints: Constraints,
-    pub x: i32,
-    pub y: i32,
+    pub x: f64,
+    pub y: f64,
     pub color: Color,
     pub handle: Option<*mut c_void>,
     pub parent: Option<*mut c_void>,
@@ -20,58 +21,77 @@ pub struct RenderObject {
 }
 
 impl RenderObject {
-    pub fn layout(&mut self) {}
-
-    #[cfg(target_os = "windows")]
-    fn draw_windows(&mut self) {
-        use crate::platform::windows::class_name;
-        use windows::{
-            core::PCWSTR,
-            Win32::{
-                Foundation::HWND,
-                UI::WindowsAndMessaging::{
-                    CreateWindowExW, WINDOW_EX_STYLE, WS_CHILD, WS_OVERLAPPEDWINDOW, WS_VISIBLE,
-                },
-            },
-        };
-        let class_name = class_name::ClassName::RENDEROBJECT.as_pcwstr();
-        let window_title = format!("{:?}\0", self.id)
-            .encode_utf16()
-            .collect::<Vec<u16>>(); //
-        let style = if self.parent.is_some() {
-            WS_CHILD | WS_VISIBLE
-        } else {
-            WS_OVERLAPPEDWINDOW | WS_VISIBLE // No WS_CHILD for root
-        };
-        let parent_hwnd = self.parent.unwrap_or(std::ptr::null_mut());
-        let hwnd_result: Result<HWND, windows::core::Error> = unsafe {
-            CreateWindowExW(
-                WINDOW_EX_STYLE(0),
-                class_name,
-                PCWSTR(window_title.as_ptr()),
-                style,
-                self.x,
-                self.y,
-                self.constraints.width.unwrap_or(self.constraints.min_width) as i32,
-                self.constraints
-                    .height
-                    .unwrap_or(self.constraints.min_height) as i32, // <-- Fix here
-                Some(HWND(parent_hwnd)),
-                None,
-                None,
-                Some(self as *mut RenderObject as *const std::ffi::c_void),
-            )
-        };
-        match hwnd_result {
-            Ok(handle) => {
-                self.handle = Some(handle.0);
-                println!("Window created");
-            }
-            Err(err) => {
-                println!("Failed to create window: {:?}", err);
+    pub fn hit_test(&self, position: Rc<PhysicalPosition<f64>>) -> bool {
+        if let Some(width) = self.constraints.width {
+            if let Some(height) = self.constraints.height {
+                if (self.x <= position.x && position.x <= self.x + width)
+                    && (self.y <= position.y && position.y <= self.y + height)
+                {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
+        // TODO: Attempt to relayout the widget.
+        false
     }
+    pub fn layout(&mut self) {
+        // TODO
+        self.constraints.width = Some(self.constraints.min_width);
+        self.constraints.height = Some(self.constraints.min_height);
+    }
+
+    // #[cfg(target_os = "windows")]
+    // fn draw_windows(&mut self) {
+    //     use crate::platform::windows::class_name;
+    //     use windows::{
+    //         Win32::{
+    //             Foundation::HWND,
+    //             UI::WindowsAndMessaging::{
+    //                 CreateWindowExW, WINDOW_EX_STYLE, WS_CHILD, WS_OVERLAPPEDWINDOW, WS_VISIBLE,
+    //             },
+    //         },
+    //         core::PCWSTR,
+    //     };
+    //     let class_name = class_name::ClassName::RENDEROBJECT.as_pcwstr();
+    //     let window_title = format!("{:?}\0", self.id)
+    //         .encode_utf16()
+    //         .collect::<Vec<u16>>(); //
+    //     let style = if self.parent.is_some() {
+    //         WS_CHILD | WS_VISIBLE
+    //     } else {
+    //         WS_OVERLAPPEDWINDOW | WS_VISIBLE // No WS_CHILD for root
+    //     };
+    //     let parent_hwnd = self.parent.unwrap_or(std::ptr::null_mut());
+    //     let hwnd_result: Result<HWND, windows::core::Error> = unsafe {
+    //         CreateWindowExW(
+    //             WINDOW_EX_STYLE(0),
+    //             class_name,
+    //             PCWSTR(window_title.as_ptr()),
+    //             style,
+    //             self.x,
+    //             self.y,
+    //             self.constraints.width.unwrap_or(self.constraints.min_width) as i32,
+    //             self.constraints
+    //                 .height
+    //                 .unwrap_or(self.constraints.min_height) as i32, // <-- Fix here
+    //             Some(HWND(parent_hwnd)),
+    //             None,
+    //             None,
+    //             Some(self as *mut RenderObject as *const std::ffi::c_void),
+    //         )
+    //     };
+    //     match hwnd_result {
+    //         Ok(handle) => {
+    //             self.handle = Some(handle.0);
+    //             println!("Window created");
+    //         }
+    //         Err(err) => {
+    //             println!("Failed to create window: {:?}", err);
+    //         }
+    //     }
+    // }
 
     #[cfg(target_os = "linux")]
     fn draw_linux(&mut self) {
@@ -105,22 +125,16 @@ impl RenderObject {
 
         println!("macOS window created");
     }
-    pub fn draw(&mut self) {
-        println!("Drawing render object with id: {}", self.id);
-        #[cfg(target_os = "windows")]
-        self.draw_windows();
-        #[cfg(target_os = "linux")]
-        self.draw_linux();
-        #[cfg(target_os = "macos")]
-        self.draw_macos();
+    pub fn draw(&mut self, target: &mut Texture) {
+        target
     }
 }
 
 pub struct Constraints {
-    pub min_width: i32,
-    pub min_height: i32,
-    pub max_width: Option<i32>,
-    pub max_height: Option<i32>,
-    pub width: Option<i32>,
-    pub height: Option<i32>,
+    pub min_width: f64,
+    pub min_height: f64,
+    pub max_width: Option<f64>,
+    pub max_height: Option<f64>,
+    pub width: Option<f64>,
+    pub height: Option<f64>,
 }

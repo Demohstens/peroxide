@@ -1,10 +1,13 @@
-use wgpu::rwh::{HasWindowHandle, RawWindowHandle};
+use wgpu::{
+    Color, ExperimentalFeatures, SurfaceTexture, Texture,
+    rwh::{HasWindowHandle, RawWindowHandle},
+};
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Foundation::HWND;
 use winit::{event::WindowEvent, window::Window};
 
-use crate::{Platform, widget::WidgetTree};
+use crate::{Platform, rendering::canvas::Canvas, widget::WidgetTree};
 
 pub struct State {
     pub surface: wgpu::Surface<'static>,
@@ -70,6 +73,7 @@ impl State {
             .unwrap();
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
+                experimental_features: ExperimentalFeatures::disabled(),
                 required_features: wgpu::Features::empty(),
                 // WebGL doesn't support all of wgpu's features, so if
                 // we're building for the web, we'll have to disable some.
@@ -105,7 +109,7 @@ impl State {
             desired_maximum_frame_latency: 2,
         };
         surface.configure(&device, &config);
-        
+
         State {
             config,
             device,
@@ -136,13 +140,18 @@ impl State {
         false
     }
 
-    pub fn update(&mut self) {}
+    pub fn update(&mut self) {
+        let texture = self.surface.get_current_texture().unwrap();
+        let mut canvas = Canvas::new(self.config.width as usize, self.config.height as usize);
+        canvas.fill(Color::GREEN);
+    }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         let output = self.surface.get_current_texture()?;
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
+
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -153,6 +162,7 @@ impl State {
             let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    depth_slice: None, // Needs to be set for 3D
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
